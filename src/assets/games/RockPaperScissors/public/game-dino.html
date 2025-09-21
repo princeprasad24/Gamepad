@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chrome Dino Game</title>
+    <link rel="icon" type="image/png" href="images/Untitled (2).png" />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100vw;
+        height: 100vh;
+        font-family: "Segoe UI", sans-serif;
+        background-color: #f5f5f5;
+      }
+      .gameName {
+        margin: 10px;
+        text-decoration: underline rgba(19, 19, 19, 0.733);
+        border-radius: 10px;
+      }
+      .gameName h1 {
+        font-size: 2.8em;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+        letter-spacing: 1px;
+      }
+      #gameContainer {
+        position: relative;
+        width: 90%;
+        max-width: 800px;
+        height: 200px;
+        background-color: #fff;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      #dino {
+        position: absolute;
+        bottom: 0;
+        left: 50px;
+        width: 50px;
+        height: 50px;
+        background-color: #2d803f;
+        border-radius: 5px;
+      }
+      .cactus {
+        position: absolute;
+        bottom: 0;
+        width: 25px;
+        height: 50px;
+        background-color: #e60000;
+        border-radius: 5px;
+      }
+      #score {
+        margin-top: 20px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="gameName">
+      <h1> Dino Game Controller </h1>
+    </div>
+
+    <div id="gameContainer">
+      <div id="dino"></div>
+    </div>
+
+    <p id="score">Score: 0</p>
+    
+    <div>
+      <p>
+        Open Controller on mobile:
+        <a href="/controller-dino.html" target="_blank">Controller Link</a>
+      </p>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+
+      const dino = document.getElementById("dino");
+      const gameContainer = document.getElementById("gameContainer");
+      const scoreEl = document.getElementById("score");
+
+      let isJumping = false;
+      let score = 0;
+      let gameOver = false;
+
+      function jump() {
+        if (isJumping) return;
+        isJumping = true;
+        let pos = 0;
+        const upInterval = setInterval(() => {
+          if (pos >= 100) {
+            clearInterval(upInterval);
+            const downInterval = setInterval(() => {
+              if (pos <= 0) {
+                clearInterval(downInterval);
+                isJumping = false;
+              }
+              pos -= 10;
+              dino.style.bottom = pos + "px";
+            }, 20);
+          }
+          pos += 10;
+          dino.style.bottom = pos + "px";
+        }, 20);
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.code === "Space" || e.code === "ArrowUp") jump();
+      });
+
+      function createCactus() {
+        if (gameOver) return;
+        const cactus = document.createElement("div");
+        cactus.classList.add("cactus");
+        gameContainer.appendChild(cactus);
+
+        let cactusPosition = gameContainer.offsetWidth;
+        cactus.style.left = cactusPosition + "px";
+
+        const moveCactus = setInterval(() => {
+          if (gameOver) clearInterval(moveCactus);
+
+          cactusPosition -= 10;
+          cactus.style.left = cactusPosition + "px";
+
+          if (
+            cactusPosition < 100 &&
+            cactusPosition > 50 &&
+            parseInt(dino.style.bottom) < 50
+          ) {
+            gameOver = true;
+            alert("Game Over! Your score: " + score);
+            window.location.reload();
+          }
+
+          if (cactusPosition < -25) {
+            clearInterval(moveCactus);
+            gameContainer.removeChild(cactus);
+            score++;
+            scoreEl.innerText = "Score: " + score;
+          }
+        }, 20);
+
+        setTimeout(createCactus, Math.random() * 2000 + 1000);
+      }
+
+      socket.on("playerMove", (move) => {
+        if (move === "jump") jump();
+      });
+
+      createCactus();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rock Paper Scissors - Game</title>
+    <link rel="icon" type="image/png" href="images/Untitled (2).png" />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        width: 100vw;
+        height: 100vh;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f5f5;
+      }
+
+      .gameName {
+        margin: 10px;
+        text-decoration: underline rgba(19, 19, 19, 0.733);
+        border-radius: 10px;
+      }
+
+      .gameName h1 {
+        font-size: 2.8em;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+        letter-spacing: 1px;
+      }
+
+      .container {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        gap: 20px;
+        padding: 20px;
+        width: 90%;
+        max-width: 600px;
+        height: 400px;
+        background-color: #fff;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .player,
+      .bot {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 45%;
+        height: 70%;
+        background-color: #f8f9fa;
+        position: relative;
+        border-radius: 15px;
+        padding: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .player {
+        background-color: #e6f7e6;
+      }
+
+      .bot {
+        background-color: #ffe6e6;
+      }
+
+      .player h1,
+      .bot h1 {
+        position: absolute;
+        top: 0;
+        font-size: 1.6em;
+        color: #4f4f4f;
+        font-weight: bold;
+        width: auto;
+        text-align: center;
+        margin-top: 15px;
+        border-bottom: 1px groove rgba(95, 95, 95, 0.278);
+      }
+
+      .player-images,
+      .bot-images {
+        position: absolute;
+        top: 50%;
+        left: 30%;
+        width: 50%;
+        height: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .player-images img,
+      .bot-images img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 80%;
+        height: 80%;
+        object-fit: contain;
+        border-radius: 8px;
+      }
+
+      #result {
+        position: relative;
+        left: 13%;
+        transform: translateX(-50%);
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #333;
+        text-align: center;
+        width: 90%;
+        max-width: 350px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      #botScore {
+        color: #e60000;
+      }
+
+      #playerScore {
+        color: #2d803f;
+      }
+
+      .scissor-div,
+      .paper-div,
+      .rock-div {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="gameName">
+      <h1>Rock Paper Scissors</h1>
+    </div>
+    <h3 id="result"></h3>
+
+    <div class="container">
+      <div class="player">
+        <h1>Player</h1>
+        <div class="player-container">
+          <p id="playerScore">Score: 0</p>
+          <div class="player-images">
+            <div class="rock-div" id="playerRock">
+              <img src="images/rock-removebg-preview.png" alt="Rock" />
+            </div>
+            <div class="paper-div" id="playerPaper">
+              <img src="images/Hand-removebg-preview.png" alt="Paper" />
+            </div>
+            <div class="scissor-div" id="playerScissor">
+              <img src="images/Scissor-removebg-preview.png" alt="Scissors" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr />
+      <div class="bot">
+        <h1>Bot</h1>
+        <div class="bot-container">
+          <p id="botScore">Score: 0</p>
+          <div class="bot-images">
+            <div class="rock-div" id="botRock">
+              <img src="images/rock-removebg-preview.png" alt="Rock" />
+            </div>
+            <div class="paper-div" id="botPaper">
+              <img src="images/Hand-removebg-preview.png" alt="Paper" />
+            </div>
+            <div class="scissor-div" id="botScissor">
+              <img src="images/Scissor-removebg-preview.png" alt="Scissors" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p>
+        Open Controller on mobile:
+        <a href="/controller-rps.html" target="_blank">Controller Link</a>
+      </p>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      // === Game logic ===
+      const playerScore = document.getElementById("playerScore");
+      const botScore = document.getElementById("botScore");
+      const result = document.getElementById("result");
+
+      const playerRock = document.getElementById("playerRock");
+      const playerPaper = document.getElementById("playerPaper");
+      const playerScissor = document.getElementById("playerScissor");
+
+      const botRock = document.getElementById("botRock");
+      const botPaper = document.getElementById("botPaper");
+      const botScissor = document.getElementById("botScissor");
+
+      let presentPlayerScore = 0;
+      let presentBotScore = 0;
+
+      const botChoices = [botRock, botPaper, botScissor];
+
+      function BotInput() {
+        botChoices.forEach((el) => (el.style.display = "none"));
+        const random = Math.floor(Math.random() * 3);
+        botChoices[random].style.display = "block";
+        return random;
+      }
+
+      function CheckCombinations(player, bot) {
+        if (player === bot) {
+          result.innerHTML = "Draw";
+          result.style.color = "#747070";
+        } else if (
+          (player === 0 && bot === 2) ||
+          (player === 1 && bot === 0) ||
+          (player === 2 && bot === 1)
+        ) {
+          result.innerHTML = "You Won!";
+          result.style.color = "#2d803f";
+          presentPlayerScore++;
+          playerScore.innerHTML = `Score: ${presentPlayerScore}`;
+        } else {
+          result.innerHTML = "Bot Won!";
+          result.style.color = "#e60000";
+          presentBotScore++;
+          botScore.innerHTML = `Score: ${presentBotScore}`;
+        }
+      }
+
+      function GettingRock() {
+        playerRock.style.display = "block";
+        playerPaper.style.display = "none";
+        playerScissor.style.display = "none";
+        const botChoice = BotInput();
+        CheckCombinations(0, botChoice);
+      }
+
+      function GettingPaper() {
+        playerRock.style.display = "none";
+        playerPaper.style.display = "block";
+        playerScissor.style.display = "none";
+        const botChoice = BotInput();
+        CheckCombinations(1, botChoice);
+      }
+
+      function GettingScissors() {
+        playerRock.style.display = "none";
+        playerPaper.style.display = "none";
+        playerScissor.style.display = "block";
+        const botChoice = BotInput();
+        CheckCombinations(2, botChoice);
+      }
+
+      // === Socket.IO hook ===
+      const socket = io();
+
+      socket.on("playerMove", (move) => {
+        if (move === "rock") GettingRock();
+        else if (move === "paper") GettingPaper();
+        else if (move === "scissors") GettingScissors();
+      });
+    </script>
+  </body>
+</html>

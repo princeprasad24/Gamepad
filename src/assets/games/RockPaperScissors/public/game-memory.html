@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Memory Card</title>
+    <style>
+      body {
+        background-color: #f2f2f2;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 20px;
+      }
+
+      .cardDiv {
+        display: grid;
+        grid-template-columns: repeat(4, 90px);
+        gap: 15px;
+      }
+
+      @media (max-width: 480px) {
+        .cardDiv {
+          display: grid;
+          grid-template-columns: repeat(4, 80px);
+          gap: 25px;
+        }
+
+        .cardClass {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 70px;
+          width: 70px;
+          border-radius: 10px;
+          position: relative;
+          perspective: 1000px;
+          cursor: pointer;
+        }
+
+        span {
+          position: absolute;
+          display: none;
+          top: 1%;
+          width: 400px;
+          height: 50px;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(90deg, #eceff1, #13a8b9, #eceff1);
+        }
+      }
+
+      @keyframes animate {
+        0% {
+          transform: rotateX(0deg);
+        }
+        100% {
+          transform: rotateX(180deg);
+        }
+      }
+
+      .cardClass {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 90px;
+        width: 90px;
+        border-radius: 10px;
+        position: relative;
+        perspective: 1000px;
+        cursor: pointer;
+        animation: animate 0.1s linear 1;
+      }
+
+      .cardClass .front,
+      .cardClass .back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+        backface-visibility: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: rgb(248, 240, 240);
+      }
+
+      .cardClass .front {
+        background-color: #ffeb3b;
+      }
+
+      .cardClass .back {
+        transform: rotateY(180deg);
+      }
+
+      .cardClass.flipped {
+        transform: rotateY(180deg);
+        transition: transform 0.6s ease-in-out;
+      }
+
+      .cardClass {
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+      }
+
+      #resetButton {
+        padding: 10px 20px;
+        font-size: 1rem;
+        border: none;
+        border-radius: 5px;
+        background-color: #ff6f61;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s ease-in-out;
+      }
+
+      #resetButton:hover {
+        background-color: #ff4f3f;
+      }
+
+      /* #resetButton:active + .cardClass {
+  animation: animate 0.1s linear 1;
+} */
+
+      .GettingAnimation {
+        animation: animate 0.1s linear 1;
+      }
+
+      span {
+        position: absolute;
+        display: none;
+        top: 15%;
+        width: 400px;
+        height: 50px;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(90deg, #eceff1, #13a8b9, #eceff1);
+      }
+
+      .gameName {
+        padding: 10px;
+        width: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(90deg, #eceff1, #00a0cc, #eceff1);
+        /* position: absolute; */
+        margin-bottom: 0px;
+      }
+
+      body {
+        background-color: #eceff1;
+      }
+
+      .cardClass .front {
+        background-color: #47c9dd;
+      }
+
+      .cardClass .back {
+        background-color: #04927d;
+      }
+
+      #resetButton {
+        background-color: #00796b;
+      }
+
+      #resetButton:hover {
+        background-color: #004d40;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="gameName">Memory Game</h1>
+      <span id="winMessage"><h1>YOU WON!</h1></span>
+      <h2 id="showPoints">score = 0</h2>
+      <div class="cardDiv" id="getcard">
+        <div class="cardClass" id="card1">
+          <div class="front" id="front1"></div>
+          <div class="back" id="back1"></div>
+        </div>
+        <div class="cardClass" id="card2">
+          <div class="front" id="front2"></div>
+          <div class="back" id="back2"></div>
+        </div>
+        <div class="cardClass" id="card3">
+          <div class="front" id="front3"></div>
+          <div class="back" id="back3"></div>
+        </div>
+        <div class="cardClass" id="card4">
+          <div class="front" id="front4"></div>
+          <div class="back" id="back4"></div>
+        </div>
+        <div class="cardClass" id="card5">
+          <div class="front" id="front5"></div>
+          <div class="back" id="back5"></div>
+        </div>
+        <div class="cardClass" id="card6">
+          <div class="front" id="front6"></div>
+          <div class="back" id="back6"></div>
+        </div>
+        <div class="cardClass" id="card7">
+          <div class="front" id="front7"></div>
+          <div class="back" id="back7"></div>
+        </div>
+        <div class="cardClass" id="card8">
+          <div class="front" id="front8"></div>
+          <div class="back" id="back8"></div>
+        </div>
+        <div class="cardClass" id="card9">
+          <div class="front" id="front9"></div>
+          <div class="back" id="back9"></div>
+        </div>
+        <div class="cardClass" id="card10">
+          <div class="front" id="front10"></div>
+          <div class="back" id="back10"></div>
+        </div>
+        <div class="cardClass" id="card11">
+          <div class="front" id="front11"></div>
+          <div class="back" id="back11"></div>
+        </div>
+        <div class="cardClass" id="card12">
+          <div class="front" id="front12"></div>
+          <div class="back" id="back12"></div>
+        </div>
+        <div class="cardClass" id="card13">
+          <div class="front" id="front13"></div>
+          <div class="back" id="back13"></div>
+        </div>
+        <div class="cardClass" id="card14">
+          <div class="front" id="front14"></div>
+          <div class="back" id="back14"></div>
+        </div>
+        <div class="cardClass" id="card15">
+          <div class="front" id="front15"></div>
+          <div class="back" id="back15"></div>
+        </div>
+        <div class="cardClass" id="card16">
+          <div class="front" id="front16"></div>
+          <div class="back" id="back16"></div>
+        </div>
+      </div>
+      <button id="resetButton">Reset</button>
+    </div>
+
+    <script>
+      // ======================================================= Getting cards from HTML =======================================================+++
+      let card_arr = [];
+      for (let i = 1; i <= 16; i++) {
+        let getElement = document.getElementById(`back${i}`);
+        card_arr.push(getElement);
+      }
+      // ====================================================================================================================================
+
+      // ======================================================= Getting Random Values =======================================================
+      function GettingCardValues() {
+        let Duplicate_card = card_arr;
+        let number_arr = [];
+        let total_numbers = 0;
+        let min = 1;
+        let max = 8;
+
+        while (total_numbers < 16) {
+          let random_number = Math.floor(Math.random() * (max - min + 1)) + min;
+          let number_count = number_arr.filter(
+            (x) => x == random_number
+          ).length;
+
+          if (number_count < 2) {
+            number_arr.push(random_number);
+            total_numbers++;
+          }
+        }
+
+        PuttingCardValues(number_arr, Duplicate_card);
+      }
+
+      // ====================================================================================================================================
+
+      // ======================================================= Putting Card Values =======================================================
+      function PuttingCardValues(number_arr, Duplicate_card) {
+        let total_values = 0;
+
+        while (total_values < 16) {
+          let random_index_number = Math.floor(
+            Math.random() * number_arr.length
+          );
+          let random_index_card = Math.floor(
+            Math.random() * Duplicate_card.length
+          );
+
+          let random_card = Duplicate_card[random_index_card];
+          let random_value = number_arr[random_index_number];
+
+          let cardValue = `<h3>${random_value}</h3>`;
+          random_card.innerHTML = cardValue;
+
+          number_arr.splice(random_index_number, 1);
+          Duplicate_card.splice(random_index_card, 1);
+          total_values++;
+        }
+      }
+      // =================================================================================================================================
+
+      // ======================================================= Checking Flip ===========================================================
+      let flippedCards = [];
+      let matchedPairs = 0;
+
+      function CheckFlip() {
+        let cardClass = document.querySelectorAll(".cardClass");
+        cardClass.forEach((card) => {
+          card.addEventListener("click", () => {
+            if (
+              flippedCards.length < 2 &&
+              !card.classList.contains("flipped")
+            ) {
+              card.classList.add("flipped");
+              flippedCards.push(card);
+
+              if (flippedCards.length === 2) {
+                setTimeout(checkMatch, 1000);
+              }
+            }
+          });
+        });
+      }
+      // ====================================================================================================================================
+
+      // ======================================================= Comparing two Cards =======================================================
+      let showPoints = document.getElementById("showPoints");
+      let winMessage = document.getElementById("winMessage");
+      function checkMatch() {
+        const [card1, card2] = flippedCards;
+        const value1 = card1.querySelector(".back h3").innerHTML;
+        const value2 = card2.querySelector(".back h3").innerHTML;
+
+        if (value1 === value2) {
+          matchedPairs++;
+          console.log("your points are ", matchedPairs);
+          showPoints.innerHTML = `score = ${matchedPairs}`;
+          if (matchedPairs === 8) {
+            console.log("YOU WON!");
+            winMessage.style.display = "flex";
+          }
+        } else {
+          setTimeout(() => {
+            card1.classList.remove("flipped");
+            card2.classList.remove("flipped");
+          }, 100);
+        }
+        flippedCards = [];
+      }
+      // ========================================================================================================================================
+
+      // ======================================================= Reset Game ======================================================================
+      let resetButton = document.getElementById("resetButton");
+      // resetButton.addEventListener("click", () => {
+      //   let cardClass = document.querySelectorAll(".cardClass");
+      //   GettingCardValues();
+      //   CheckFlip();
+      //   flippedCards = [];
+      //   matchedPairs = 0;
+      //   winMessage.style.display = "none";
+      //   cardClass.forEach( card => {
+      //     card.classList.add("GettingAnimation");
+      //   });
+      // });
+
+      resetButton.addEventListener("click", () => {
+        location.reload();
+      });
+
+      // ======================================================= Calling Functions Onload =====================================================
+
+      window.onload = function () {
+        GettingCardValues();
+        CheckFlip();
+      };
+
+      // ====================================================================================================================================
+    </script>
+  </body>
+</html>

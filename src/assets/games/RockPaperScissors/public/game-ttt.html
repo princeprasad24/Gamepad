@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic-Tac-Toe</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f4f4f4;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f5f5, #d0f0ff);
+      }
+
+      h1 {
+        text-align: center;
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+        font-size: 48px;
+        font-weight: 600;
+        color: #333;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      .container {
+        text-align: center;
+        position: relative;
+      }
+
+      .main {
+        display: grid;
+        grid-template-columns: repeat(3, 120px);
+        grid-template-rows: repeat(3, 120px);
+        gap: 10px;
+        padding: 10px;
+        border: 2px solid #333;
+        border-radius: 10px;
+        background-color: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .cell {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 3rem;
+        font-weight: bold;
+        border-radius: 10px;
+        border: 2px solid #7b7a7a;
+        background-color: #f9f9f9;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .cell:hover {
+        background-color: #ddd;
+        transform: scale(1.05);
+      }
+
+      .cell:active {
+        background-color: #bbb;
+        transform: scale(1);
+      }
+
+      .showWin {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        color: #2f2f2f;
+        z-index: 10;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        max-width: 400px;
+        height: 100px;
+        padding: 15px;
+        background-image: linear-gradient(90deg, #f4f4f4, #add8e6, #f4f4f4);
+        text-align: center;
+        border-radius: 12px;
+        backdrop-filter: blur(20px);
+        font-size: 1.5rem;
+        font-weight: bold;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .scoreBoard {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+      }
+
+      .main div {
+        font-size: 1.5rem;
+        border-radius: 10px;
+        cursor: pointer;
+        border: 2px solid #333;
+        background-color: #fff;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .scoreBoard span {
+        font-weight: bold;
+        color: #2d803f;
+      }
+
+      @media (max-width: 768px) {
+        .main {
+          grid-template-columns: repeat(3, 80px);
+          grid-template-rows: repeat(3, 80px);
+          gap: 8px;
+        }
+        .cell {
+          font-size: 2rem;
+        }
+        .showWin {
+          width: 90%;
+          padding: 12px;
+        }
+        .scoreBoard {
+          flex-direction: column;
+          gap: 5px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Tic-Tac-Toe</h1>
+      <div class="scoreBoard">
+        <div>Player X Score: <span id="p1Score">0</span></div>
+        <div>Player O Score: <span id="p2Score">0</span></div>
+      </div>
+      <div class="main">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+      </div>
+      <div class="showWin"></div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      const cells = document.querySelectorAll(".cell");
+      const showWin = document.querySelector(".showWin");
+      const p1ScoreElem = document.getElementById("p1Score");
+      const p2ScoreElem = document.getElementById("p2Score");
+
+      let board = Array(9).fill("");
+      let currentPlayer = "X";
+      let scores = { X: 0, O: 0 };
+
+      function checkWin() {
+        const winConditions = [
+          [0, 1, 2],
+          [3, 4, 5],
+          [6, 7, 8],
+          [0, 3, 6],
+          [1, 4, 7],
+          [2, 5, 8],
+          [0, 4, 8],
+          [2, 4, 6],
+        ];
+        for (const [a, b, c] of winConditions) {
+          if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            showWin.textContent = `${board[a]} Won!`;
+            scores[board[a]]++;
+            updateScore();
+            return true;
+          }
+        }
+        if (!board.includes("")) {
+          showWin.textContent = "Draw!";
+          return true;
+        }
+        return false;
+      }
+
+      function updateScore() {
+        p1ScoreElem.textContent = scores.X;
+        p2ScoreElem.textContent = scores.O;
+      }
+
+      socket.on("playerMove", (index) => {
+        if (!board[index]) {
+          board[index] = currentPlayer;
+          cells[index].textContent = currentPlayer;
+          if (checkWin()) {
+            setTimeout(() => {
+              board.fill("");
+              cells.forEach((cell) => (cell.textContent = ""));
+              showWin.textContent = "";
+            }, 2000);
+          }
+          currentPlayer = currentPlayer === "X" ? "O" : "X";
+        }
+      });
+    </script>
+  </body>
+</html>

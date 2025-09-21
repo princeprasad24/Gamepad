@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dino Controller</title>
+    <link rel="icon" type="image/png" href="images/Untitled (2).png" />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100vw;
+        height: 100vh;
+        font-family: "Segoe UI", sans-serif;
+        background-color: #f5f5f5;
+      }
+      h1 {
+        margin-bottom: 40px;
+        text-align: center;
+      }
+      button {
+        padding: 20px 40px;
+        font-size: 1.5rem;
+        border: none;
+        border-radius: 10px;
+        background-color: #2d803f;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+      }
+      button:active {
+        transform: scale(0.95);
+        background-color: #237231;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Dino Controller</h1>
+    <button id="jumpBtn">Jump</button>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+
+      const jumpBtn = document.getElementById("jumpBtn");
+
+      jumpBtn.addEventListener("click", () => {
+        socket.emit("playerMove", "jump");
+      });
+
+      
+      document.body.addEventListener("touchstart", () => {
+        socket.emit("playerMove", "jump");
+      });
+    </script>
+  </body>
+</html>
